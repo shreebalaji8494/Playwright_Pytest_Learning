@@ -8,6 +8,7 @@ from pages.saucedemo_home_page import SaucedemoHomePage
 from pages.saucedemo_checkout_page import SaucedemoCheckoutPage
 
 # The parametrization can happen in 3 ways: pass the value in @pytest.mark.parametrize, pass the csv file in the @pytest.mark.parametrize or using JSON file having data we can parametrize the test.
+#Using CSV file to parametrize the test
 def get_csv_data():
     """Read test data from a CSV file and return it as a list of tuples."""
     import csv
@@ -19,9 +20,17 @@ def get_csv_data():
             data.append((row[0], row[1]))  # Assuming username is in column 0 and password in column 1
     return data
 
+#Using JSON file to parametrize the test
+def get_json_data():
+    """Read test data from a JSON file and return it as a list of tuples."""
+    import json
+    with open('./test_data/data.json') as jsonfile:
+        data = json.load(jsonfile)
+        return [(item['username'], item['password']) for item in data]  # Assuming the JSON structure has 'username' and 'password' keys
+
 # The test below is parameterized to run with multiple sets of credentials, allowing
 # us to verify the login and checkout flow for different user types in a single test function.
-@pytest.mark.parametrize("username, user_password", get_csv_data())
+@pytest.mark.parametrize("username, user_password", get_json_data())
 
 def test_runSaucedemoOperations(page: Page, username: str, user_password: str) -> None:
     """Exercise the main SauceDemo shopping and checkout flow end to end."""
