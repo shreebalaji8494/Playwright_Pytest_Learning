@@ -23,6 +23,7 @@ class DemoQAPracticePage:
         self.state_dropdown = page.locator("#state")
         self.city_dropdown = page.locator("#city")
         self.submit_button = page.locator("#submit")
+        self.close_button = page.locator("#closeLargeModal")
 
     def fill_name_email_mobileNumber(self,first_name:str,last_name:str,email:str,mobile_number:str):
         """Fill in the first name, last name, email, and mobile number fields."""
@@ -81,6 +82,11 @@ class DemoQAPracticePage:
         assert self.submit_button.is_visible(), "Submit button is not enabled."
         self.submit_button.click()
 
+    def close_modal(self):
+        """Click the close button to close the modal dialog."""
+        assert self.close_button.is_visible(), "Close button is not enabled."
+        self.close_button.click()    
+
     def fill_details_and_submit(self, first_name: str, last_name: str, email: str, mobile_number: str, date_of_birth: str, gender: str, hobbies: list, address: str, state: str, city: str):
         """Fill in all the required details and submit the form."""
         self.fill_name_email_mobileNumber(first_name, last_name, email, mobile_number)
@@ -90,5 +96,6 @@ class DemoQAPracticePage:
         self.fill_current_address(address)
         self.select_state_city(state, city)
         self.submit_form()    
+        self.close_modal()
 
              
