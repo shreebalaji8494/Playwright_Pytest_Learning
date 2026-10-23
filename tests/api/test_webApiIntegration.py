@@ -1,34 +1,44 @@
 #In this Test we are going to generate an order using api and then verify the order id in orders page 
 #using web automation.
+import json
 from playwright.sync_api import Playwright, expect
-
+import pytest
+from pages.loginPage import LoginPage
 from utils.apiBase import APIUtils
 
-def test_e2e_webApiIntegration(playwright:Playwright):
+#fetching the credentials from external data file for login
+with open("test_data/credentials.json") as f:
+    data= json.load(f)
+    user_credentials_list = data['user_credentials']
+
+#We are using pytest parameterize fixture to get the list of user credentials
+@pytest.mark.parametrize('user_credentials',user_credentials_list) 
+def test_e2e_webApiIntegration(playwright:Playwright, user_credentials): 
+    userName = user_credentials['user_email']
+    userPassword = user_credentials['user_password']
     #Step 1:create order using api
     #for achieving this step we need to call the api methods which we have written in the utils package.
     # we will do it by creating a class object for that class and then call the method.
     api_utils = APIUtils()
-    order_id = api_utils.createOrder(playwright)
+    order_id = api_utils.createOrder(playwright,user_credentials)
 
     #Step 2: Login to the web page using credentials
-    browser = playwright.chromium.launch()
+    browser = playwright.chromium.launch(headless=False)
     context = browser.new_context()
     page = context.new_page()
-    page.goto("https://rahulshettyacademy.com/client")
-    # page.get_by_placeholder("email@example.com").fill("shreebalajimsc@gmail.com")
-    # page.get_by_placeholder("enter your passsword").fill("Dinku@2408")
-    page.locator("#userEmail").fill("shreebalajimsc@gmail.com")
-    page.locator("#userPassword").fill("Dinku@2408")
-    page.get_by_role("button",name="Login").click()
-
+    
+    loginPage = LoginPage(page)
+    loginPage.navigate_to_url(page)
+    dashboardPage=loginPage.login(userName,userPassword)
+    
     #Step 3 : Go to orders page and then click view button in the particular order and then assert the message
-    page.get_by_role("button",name="ORDERS").click()
+    orderHistoryPage = dashboardPage.selectOrdersNavigationLink()
     #finding the view button of our order id
-    row = page.locator("tr").filter(has_text=order_id)
-    #now clicking view button of that particular entry 
-    row.get_by_role("button",name="View").click()
+    orderDetailsPage = orderHistoryPage.selectOrder(order_id)
+    
     #Assert the thank you text
-    expect(page.locator(".tagline")).to_have_text("Thank you for Shopping With Us")
+    orderDetailsPage.verifyOrder()
 
+    #Closing the context
+    context.close()
 
