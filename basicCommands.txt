@@ -1,0 +1,17 @@
+#To run all tests inside a folder, move the control to the folder and type,
+pytest
+
+#To run tests with specific tags like smoke,
+pytest -m smoke
+
+#To run tests with test names having specific keywords like "web_api"
+pytest -k web_api
+
+#To run tests paralelly with number of parallel workers. For this we need pytest-xdist plugin installed
+pytest -n 5 #where 5 is the thread count
+
+#To create a pytest html report we write the below comment while running the test. For this we need pytest-html plugin
+pytest -n 3 --html=Path of your report and Name of your report.html
+
+#To generate logs and screenshots we use --tracing which has 3 modes. on off and retain-on-failure.
+pytest -n 3 --tracing retain-on-failure
