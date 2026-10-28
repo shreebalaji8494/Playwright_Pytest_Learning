@@ -4,16 +4,17 @@ import json
 from playwright.sync_api import Playwright, expect
 import pytest
 from pages.loginPage import LoginPage
-from utils.apiBase import APIUtils
+from utils.apiBaseFrameworkLevel import APIUtils
 
 #fetching the credentials from external data file for login
 with open("test_data/credentials.json") as f:
     data= json.load(f)
     user_credentials_list = data['user_credentials']
 
-#We are using pytest parameterize fixture to get the list of user credentials
+#We are using pytest parameterize fixture to get the list of user credentials as well as browser instance
+@pytest.mark.smoke #This is tagging test case and the command to run is pytest -m smoke
 @pytest.mark.parametrize('user_credentials',user_credentials_list) 
-def test_e2e_webApiIntegration(playwright:Playwright, user_credentials): 
+def test_e2e_webApiIntegration(playwright:Playwright, browserInstance, user_credentials): 
     userName = user_credentials['user_email']
     userPassword = user_credentials['user_password']
     #Step 1:create order using api
@@ -23,12 +24,9 @@ def test_e2e_webApiIntegration(playwright:Playwright, user_credentials):
     order_id = api_utils.createOrder(playwright,user_credentials)
 
     #Step 2: Login to the web page using credentials
-    browser = playwright.chromium.launch(headless=False)
-    context = browser.new_context()
-    page = context.new_page()
     
-    loginPage = LoginPage(page)
-    loginPage.navigate_to_url(page)
+    loginPage = LoginPage(browserInstance)
+    loginPage.navigate_to_url(browserInstance)
     dashboardPage=loginPage.login(userName,userPassword)
     
     #Step 3 : Go to orders page and then click view button in the particular order and then assert the message
@@ -38,7 +36,4 @@ def test_e2e_webApiIntegration(playwright:Playwright, user_credentials):
     
     #Assert the thank you text
     orderDetailsPage.verifyOrder()
-
-    #Closing the context
-    context.close()
 
