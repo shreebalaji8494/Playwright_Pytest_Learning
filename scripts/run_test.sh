@@ -35,4 +35,4 @@ case "$BROWSER_NAME" in
 esac
 
 echo "Running tests on: $BROWSER_NAME"
-pytest $BROWSER_ARGS --html=report.html --tracing on -n 5
+pytest $BROWSER_ARGS --html=reports/report.html --tracing on -n 5 --screenshot only-on-failure
